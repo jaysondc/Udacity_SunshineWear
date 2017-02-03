@@ -30,6 +30,8 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.wearable.watchface.CanvasWatchFaceService;
 import android.support.wearable.watchface.WatchFaceStyle;
 import android.text.format.Time;
@@ -43,6 +45,16 @@ import android.view.WindowInsets;
 import android.view.WindowManager;
 import android.widget.TextView;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.wearable.DataApi;
+import com.google.android.gms.wearable.DataEvent;
+import com.google.android.gms.wearable.DataEventBuffer;
+import com.google.android.gms.wearable.DataItem;
+import com.google.android.gms.wearable.DataMap;
+import com.google.android.gms.wearable.DataMapItem;
+import com.google.android.gms.wearable.Wearable;
+
 import java.util.Locale;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
@@ -51,9 +63,15 @@ import java.util.concurrent.TimeUnit;
  * Digital watch face with seconds. In ambient mode, the seconds aren't displayed. On devices with
  * low-bit ambient mode, the text is drawn without anti-aliasing in ambient mode.
  */
-public class SunshineWatchfaceService extends CanvasWatchFaceService {
+public class SunshineWatchfaceService extends CanvasWatchFaceService implements
+        DataApi.DataListener,
+        GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener{
+
     private static final Typeface NORMAL_TYPEFACE =
             Typeface.create(Typeface.SANS_SERIF, Typeface.NORMAL);
+    private final String LOG_TAG = this.getClass().getSimpleName();
+    private GoogleApiClient mGoogleApiClient;
 
     /**
      * Update rate in milliseconds for interactive mode. We update once a second since seconds are
@@ -61,8 +79,53 @@ public class SunshineWatchfaceService extends CanvasWatchFaceService {
      */
     private static final long INTERACTIVE_UPDATE_RATE_MS = TimeUnit.SECONDS.toMillis(1);
 
+
+    /**
+     * Store weather data once a change is synced
+     */
+    @Override
+    public void onDataChanged(DataEventBuffer dataEventBuffer) {
+        Log.d(LOG_TAG, "Detected some date changed!");
+
+//        for (DataEvent event : dataEventBuffer) {
+//            if (event.getType() == DataEvent.TYPE_CHANGED) {
+//                // DataItem changed
+//                DataItem item = event.getDataItem();
+//                if (item.getUri().getPath().compareTo("/count") == 0) {
+//                    DataMap dataMap = DataMapItem.fromDataItem(item).getDataMap();
+//                    // updateCount(dataMap.getInt(COUNT_KEY));
+//                }
+//            } else if (event.getType() == DataEvent.TYPE_DELETED) {
+//                // DataItem deleted
+//            }
+//        }
+    }
+
+    @Override
+    public void onConnected(@Nullable Bundle bundle) {
+        Wearable.DataApi.addListener(mGoogleApiClient, this);
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+        Wearable.DataApi.removeListener(mGoogleApiClient, this);
+        mGoogleApiClient.disconnect();
+
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+
+    }
+
     @Override
     public Engine onCreateEngine() {
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addApi(Wearable.API)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .build();
+
         return new Engine();
     }
 
@@ -287,5 +350,8 @@ public class SunshineWatchfaceService extends CanvasWatchFaceService {
         private boolean shouldTimerBeRunning() {
             return isVisible() && !isInAmbientMode();
         }
+
+
+
     }
 }
