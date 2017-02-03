@@ -6,7 +6,7 @@ android {
 
     defaultConfig {
         applicationId "com.example.android.sunshine"
-        minSdkVersion 10
+        minSdkVersion 21
         targetSdkVersion 25
         versionCode 1
         versionName "1.0"
@@ -41,4 +41,5 @@ dependencies {
 
     // Add dependency on Sunshine Wear Module
     wearApp project(':sunshinewear')
+    compile project(':resourcemodule')
 }
