@@ -28,10 +28,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
+            android:text=":"
             android:textColor="#fff"
             android:textSize="30sp"
-            android:textStyle="bold"
-            android:text=":" />
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/minute"
@@ -49,47 +49,47 @@
         android:id="@+id/date_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_above="@+id/watchface_divider"
         android:layout_centerHorizontal="true"
-        android:orientation="horizontal"
-        android:layout_above="@+id/watchface_divider">
+        android:orientation="horizontal">
 
         <TextView
             android:id="@+id/day"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            tools:text="THU, "
             android:textAllCaps="true"
             android:textColor="#fff"
             android:textSize="20sp"
-            android:textStyle="normal" />
+            android:textStyle="normal"
+            tools:text="THU, " />
 
         <TextView
             android:id="@+id/month"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            tools:text="MAY "
             android:textAllCaps="true"
             android:textColor="#fff"
             android:textSize="20sp"
-            android:textStyle="normal" />
+            android:textStyle="normal"
+            tools:text="MAY " />
 
         <TextView
             android:id="@+id/date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            tools:text="14 "
             android:textColor="#fff"
             android:textSize="20sp"
-            android:textStyle="normal" />
+            android:textStyle="normal"
+            tools:text="14 " />
 
         <TextView
             android:id="@+id/year"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            tools:text="2017"
             android:textColor="#fff"
             android:textSize="20sp"
-            android:textStyle="normal" />
+            android:textStyle="normal"
+            tools:text="2017" />
 
     </LinearLayout>
 
@@ -99,5 +99,41 @@
         android:layout_height="1dp"
         android:layout_centerInParent="true"
         android:background="#fff" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/watchface_divider"
+        android:orientation="horizontal"
+        android:layout_centerHorizontal="true"
+        android:gravity="center_vertical">
+
+        <ImageView
+            android:id="@+id/weather_icon"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:src="@drawable/art_clear" />
+
+        <TextView
+            android:id="@+id/temp_high"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:textColor="#fff"
+            android:textSize="25sp"
+            android:textStyle="bold"
+            android:text="25* "/>
+
+        <TextView
+            android:id="@+id/temp_low"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:textColor="#fff"
+            android:textSize="25sp"
+            android:textStyle="normal"
+            android:text="16*" />
+
+    </LinearLayout>
 
 </RelativeLayout>
