@@ -42,6 +42,8 @@ import android.view.ViewGroup;
 import android.view.WindowInsets;
 import android.view.WindowManager;
 import android.widget.TextView;
+
+import java.util.Locale;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
@@ -106,7 +108,7 @@ public class SunshineWatchfaceService extends CanvasWatchFaceService {
 
         private int specW, specH;
         private View myLayout;
-        private TextView day, date, month, hour, minute, second;
+        private TextView day, date, month, year, hour, minute;
         private final Point displaySize = new Point();
 
         /**
@@ -141,9 +143,10 @@ public class SunshineWatchfaceService extends CanvasWatchFaceService {
             day = (TextView) myLayout.findViewById(R.id.day);
             date = (TextView) myLayout.findViewById(R.id.date);
             month = (TextView) myLayout.findViewById(R.id.month);
+            year = (TextView) myLayout.findViewById(R.id.year);
             hour = (TextView) myLayout.findViewById(R.id.hour);
             minute = (TextView) myLayout.findViewById(R.id.minute);
-            second = (TextView) myLayout.findViewById(R.id.second);
+
         }
 
         @Override
@@ -224,15 +227,6 @@ public class SunshineWatchfaceService extends CanvasWatchFaceService {
             if (mAmbient != inAmbientMode) {
                 mAmbient = inAmbientMode;
 
-                // Show/hide the seconds fields
-                if (inAmbientMode) {
-                    second.setVisibility(View.GONE);
-                    myLayout.findViewById(R.id.second_label).setVisibility(View.GONE);
-                } else {
-                    second.setVisibility(View.VISIBLE);
-                    myLayout.findViewById(R.id.second_label).setVisibility(View.VISIBLE);
-                }
-
                 // Switch between bold & normal font
                 Typeface font = Typeface.create("sans-serif-condensed",
                         inAmbientMode ? Typeface.NORMAL : Typeface.BOLD);
@@ -256,23 +250,21 @@ public class SunshineWatchfaceService extends CanvasWatchFaceService {
             mTime.setToNow();
 
             // Apply it to the date fields
-            day.setText(String.format("%ta", mTime.toMillis(false)));
-            date.setText(String.format("%02d", mTime.monthDay));
-            month.setText(String.format("%tb", mTime.toMillis(false)));
+            day.setText(String.format("%ta, ", mTime.toMillis(false)));
+            month.setText(String.format("%tb ", mTime.toMillis(false)));
+            date.setText(String.format(Locale.getDefault(), "%02d ", mTime.monthDay));
+            year.setText(String.format(Locale.getDefault(), "%04d", mTime.year));
 
             // Apply it to the time fields
-            hour.setText(String.format("%02d", mTime.hour));
-            minute.setText(String.format("%02d", mTime.minute));
-            if (!mAmbient) {
-                second.setText(String.format("%02d", mTime.second));
-            }
+            hour.setText(String.format(Locale.getDefault(), "%02d", mTime.hour));
+            minute.setText(String.format(Locale.getDefault(), "%02d", mTime.minute));
 
             // Update the layout
             myLayout.measure(specW, specH);
             myLayout.layout(0, 0, myLayout.getMeasuredWidth(), myLayout.getMeasuredHeight());
 
             // Draw it to the Canvas
-            canvas.drawColor(Color.BLACK);
+            canvas.drawColor(getColor(R.color.colorPrimary));
             canvas.translate(mXOffset, mYOffset);
             myLayout.draw(canvas);
         }

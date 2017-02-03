@@ -1,121 +1,103 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="8dp"
-    >
+    android:padding="8dp">
 
-    <TextView
+    <LinearLayout
+        android:id="@+id/time_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="MAY"
-        android:id="@+id/month"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="true"
-        android:textColor="#aaa"
-        android:textStyle="bold"
-        android:textSize="20dp"
-        android:textAllCaps="true"
-        />
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="14"
-        android:id="@+id/date"
-        android:layout_alignParentTop="true"
-        android:layout_toStartOf="@+id/month"
-        android:textColor="#fff"
-        android:textStyle="bold"
-        android:textSize="20dp"
-        />
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="THU"
-        android:id="@+id/day"
-        android:layout_alignParentTop="true"
-        android:layout_toStartOf="@+id/date"
-        android:textColor="#aaa"
-        android:textStyle="bold"
-        android:textSize="20dp"
-        android:textAllCaps="true"
-        />
+        android:layout_above="@+id/date_layout"
+        android:layout_centerHorizontal="true"
+        android:orientation="horizontal">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="18"
-        android:id="@+id/hour"
-        android:layout_below="@+id/month"
-        android:layout_alignParentStart="true"
-        android:layout_marginTop="4dp"
-        android:textColor="#fff"
-        android:textStyle="bold"
-        android:textSize="30dp"
-        />
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="HOURS"
-        android:id="@+id/hour_label"
-        android:layout_alignBaseline="@+id/hour"
-        android:layout_toEndOf="@+id/hour"
-        android:textColor="#aaa"
-        android:textStyle="bold"
-        android:textSize="30dp"
-        android:singleLine="true"
-        android:ellipsize="none"
-        />
+        <TextView
+            android:id="@+id/hour"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:textColor="#fff"
+            android:textSize="30sp"
+            android:textStyle="bold"
+            tools:text="18" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="53"
-        android:id="@+id/minute"
-        android:layout_below="@+id/hour"
-        android:layout_alignParentStart="true"
-        android:layout_marginTop="4dp"
-        android:textColor="#fff"
-        android:textStyle="bold"
-        android:textSize="30dp"
-        />
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="MINUTES"
-        android:id="@+id/minute_label"
-        android:layout_alignBaseline="@+id/minute"
-        android:layout_toEndOf="@+id/minute"
-        android:textColor="#aaa"
-        android:textStyle="bold"
-        android:textSize="30dp"
-        android:singleLine="true"
-        android:ellipsize="none"
-        />
+        <TextView
+            android:id="@+id/colon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:textColor="#fff"
+            android:textSize="30sp"
+            android:textStyle="bold"
+            android:text=":" />
 
-    <TextView
+        <TextView
+            android:id="@+id/minute"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:textColor="#fff"
+            android:textSize="30sp"
+            android:textStyle="normal"
+            tools:text="53" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/date_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="27"
-        android:id="@+id/second"
-        android:layout_below="@+id/minute"
-        android:layout_alignParentStart="true"
-        android:layout_marginTop="4dp"
-        android:textColor="#fff"
-        android:textStyle="bold"
-        android:textSize="30dp"
-        />
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="SECONDS"
-        android:id="@+id/second_label"
-        android:layout_alignBaseline="@+id/second"
-        android:layout_toEndOf="@+id/second"
-        android:textColor="#aaa"
-        android:textStyle="bold"
-        android:textSize="30dp"
-        android:singleLine="true"
-        android:ellipsize="none"
-        />
+        android:layout_centerHorizontal="true"
+        android:orientation="horizontal"
+        android:layout_above="@+id/watchface_divider">
+
+        <TextView
+            android:id="@+id/day"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="THU, "
+            android:textAllCaps="true"
+            android:textColor="#fff"
+            android:textSize="20sp"
+            android:textStyle="normal" />
+
+        <TextView
+            android:id="@+id/month"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="MAY "
+            android:textAllCaps="true"
+            android:textColor="#fff"
+            android:textSize="20sp"
+            android:textStyle="normal" />
+
+        <TextView
+            android:id="@+id/date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="14 "
+            android:textColor="#fff"
+            android:textSize="20sp"
+            android:textStyle="normal" />
+
+        <TextView
+            android:id="@+id/year"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="2017"
+            android:textColor="#fff"
+            android:textSize="20sp"
+            android:textStyle="normal" />
+
+    </LinearLayout>
+
+    <FrameLayout
+        android:id="@+id/watchface_divider"
+        android:layout_width="50dp"
+        android:layout_height="2dp"
+        android:layout_centerInParent="true"
+        android:background="#fff" />
+
 </RelativeLayout>
