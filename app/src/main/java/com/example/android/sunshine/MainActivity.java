@@ -19,6 +19,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -35,6 +36,13 @@ import android.widget.ProgressBar;
 import com.example.android.sunshine.data.SunshinePreferences;
 import com.example.android.sunshine.data.WeatherContract;
 import com.example.android.sunshine.sync.SunshineSyncUtils;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.PendingResult;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.wearable.DataApi;
+import com.google.android.gms.wearable.PutDataMapRequest;
+import com.google.android.gms.wearable.PutDataRequest;
+import com.google.android.gms.wearable.Wearable;
 
 public class MainActivity extends AppCompatActivity implements
         LoaderManager.LoaderCallbacks<Cursor>,
@@ -76,6 +84,8 @@ public class MainActivity extends AppCompatActivity implements
     private ForecastAdapter mForecastAdapter;
     private RecyclerView mRecyclerView;
     private int mPosition = RecyclerView.NO_POSITION;
+
+    private String LOG_TAG = this.getClass().getSimpleName();
 
     private ProgressBar mLoadingIndicator;
 
@@ -336,8 +346,31 @@ public class MainActivity extends AppCompatActivity implements
             startActivity(new Intent(this, SettingsActivity.class));
             return true;
         }
+        // Change to test action for Wear Sync
         if (id == R.id.action_map) {
-            openPreferredLocationInMap();
+            //openPreferredLocationInMap();
+
+            GoogleApiClient mGoogleApiClient;
+            mGoogleApiClient = new GoogleApiClient.Builder(this)
+                    .addApi(Wearable.API)
+                    .build();
+            mGoogleApiClient.connect();
+
+            double random = Math.floor(Math.random()*10);
+            Log.d(LOG_TAG, "Sending the number " + random + " to Android Wear.");
+            PutDataMapRequest putDataMapReq = PutDataMapRequest.create(getString(R.string.PATH_WEAR_DATA));
+            putDataMapReq.getDataMap().putDouble(getString(R.string.DATAMAP_TEMP_HIGH), random);
+            putDataMapReq.setUrgent();
+            PutDataRequest putDataReq = putDataMapReq.asPutDataRequest();
+            PendingResult<DataApi.DataItemResult> pendingResult =
+                    Wearable.DataApi.putDataItem(mGoogleApiClient, putDataReq);
+            pendingResult.setResultCallback(new ResultCallback<DataApi.DataItemResult>() {
+                @Override
+                public void onResult(@NonNull DataApi.DataItemResult dataItemResult) {
+                    Log.d(LOG_TAG, "Result is " + dataItemResult.getStatus() + ".");
+                }
+            });
+
             return true;
         }
 

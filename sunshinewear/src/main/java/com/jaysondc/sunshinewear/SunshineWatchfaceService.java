@@ -85,7 +85,7 @@ public class SunshineWatchfaceService extends CanvasWatchFaceService implements
      */
     @Override
     public void onDataChanged(DataEventBuffer dataEventBuffer) {
-        Log.d(LOG_TAG, "Detected some date changed!");
+        Log.d(LOG_TAG, "Detected some data changed!");
 
 //        for (DataEvent event : dataEventBuffer) {
 //            if (event.getType() == DataEvent.TYPE_CHANGED) {
@@ -103,11 +103,13 @@ public class SunshineWatchfaceService extends CanvasWatchFaceService implements
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
+        Log.d(LOG_TAG, "Wearable API is connected. Now listening.");
         Wearable.DataApi.addListener(mGoogleApiClient, this);
     }
 
     @Override
     public void onConnectionSuspended(int i) {
+        Log.d(LOG_TAG, "Wearable API is suspended.");
         Wearable.DataApi.removeListener(mGoogleApiClient, this);
         mGoogleApiClient.disconnect();
 
@@ -115,7 +117,7 @@ public class SunshineWatchfaceService extends CanvasWatchFaceService implements
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-
+        Log.d(LOG_TAG, "Wearable API connection failed.");
     }
 
     @Override
@@ -126,6 +128,9 @@ public class SunshineWatchfaceService extends CanvasWatchFaceService implements
                 .addOnConnectionFailedListener(this)
                 .build();
 
+        mGoogleApiClient.connect();
+
+        Log.d(LOG_TAG, "Watchface created.");
         return new Engine();
     }
 

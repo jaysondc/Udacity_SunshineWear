@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">Resource Module</string>
+
+    // String constants
+    <string name="PATH_WEAR_DATA">/sunshine/wear/data</string>
+    <string name="DATAMAP_TEMP_HIGH">datamap_temp_high</string>
+    <string name="DATAMAP_TEMP_LOW">datamap_temp_low</string>
+    <string name="DATAMAP_CONDITION">datamap_condition</string>
 </resources>
