@@ -43,6 +43,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowInsets;
 import android.view.WindowManager;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -72,6 +73,7 @@ public class SunshineWatchfaceService extends CanvasWatchFaceService implements
             Typeface.create(Typeface.SANS_SERIF, Typeface.NORMAL);
     private final String LOG_TAG = this.getClass().getSimpleName();
     private GoogleApiClient mGoogleApiClient;
+    private Engine mWatchEngine;
 
     /**
      * Update rate in milliseconds for interactive mode. We update once a second since seconds are
@@ -87,18 +89,21 @@ public class SunshineWatchfaceService extends CanvasWatchFaceService implements
     public void onDataChanged(DataEventBuffer dataEventBuffer) {
         Log.d(LOG_TAG, "Detected some data changed!");
 
-//        for (DataEvent event : dataEventBuffer) {
-//            if (event.getType() == DataEvent.TYPE_CHANGED) {
-//                // DataItem changed
-//                DataItem item = event.getDataItem();
-//                if (item.getUri().getPath().compareTo("/count") == 0) {
-//                    DataMap dataMap = DataMapItem.fromDataItem(item).getDataMap();
-//                    // updateCount(dataMap.getInt(COUNT_KEY));
-//                }
-//            } else if (event.getType() == DataEvent.TYPE_DELETED) {
-//                // DataItem deleted
-//            }
-//        }
+        for (DataEvent event : dataEventBuffer) {
+            if (event.getType() == DataEvent.TYPE_CHANGED) {
+                // DataItem changed
+                DataItem item = event.getDataItem();
+                if (item.getUri().getPath().compareTo(getString(R.string.PATH_WEAR_DATA)) == 0) {
+                    DataMap dataMap = DataMapItem.fromDataItem(item).getDataMap();
+                     Log.d(LOG_TAG, "Data is " + (dataMap.getDouble(getString(R.string.DATAMAP_TEMP_HIGH))));
+
+                    // Update watchface with updated weather data
+                    mWatchEngine.updateWeather("One", "Two", "Three");
+                }
+            } else if (event.getType() == DataEvent.TYPE_DELETED) {
+                // DataItem deleted
+            }
+        }
     }
 
     @Override
@@ -131,7 +136,8 @@ public class SunshineWatchfaceService extends CanvasWatchFaceService implements
         mGoogleApiClient.connect();
 
         Log.d(LOG_TAG, "Watchface created.");
-        return new Engine();
+        mWatchEngine = new Engine();
+        return mWatchEngine;
     }
 
     private class Engine extends CanvasWatchFaceService.Engine {
@@ -176,7 +182,8 @@ public class SunshineWatchfaceService extends CanvasWatchFaceService implements
 
         private int specW, specH;
         private View myLayout;
-        private TextView day, date, month, year, hour, minute;
+        private TextView day, date, month, year, hour, minute, high, low;
+        private ImageView weatherIcon;
         private final Point displaySize = new Point();
 
         /**
@@ -214,6 +221,12 @@ public class SunshineWatchfaceService extends CanvasWatchFaceService implements
             year = (TextView) myLayout.findViewById(R.id.year);
             hour = (TextView) myLayout.findViewById(R.id.hour);
             minute = (TextView) myLayout.findViewById(R.id.minute);
+
+            // Weather views
+            high = (TextView) myLayout.findViewById(R.id.temp_high);
+            low = (TextView) myLayout.findViewById(R.id.temp_low);
+            weatherIcon = (ImageView) myLayout.findViewById(R.id.weather_icon);
+
 
         }
 
@@ -357,6 +370,18 @@ public class SunshineWatchfaceService extends CanvasWatchFaceService implements
         }
 
 
+        /**
+         * Update weather components of watchface
+         */
+        private void updateWeather(String highTemp, String lowTemp, String iconCondition){
+            // We assume the imperial vs metric conversion is done for us
+            high.setText(highTemp);
+            low.setText(lowTemp);
+
+            // Set icon somehow
+
+
+        }
 
     }
 }

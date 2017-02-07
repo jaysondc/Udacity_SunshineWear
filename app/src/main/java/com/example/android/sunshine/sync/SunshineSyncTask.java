@@ -18,17 +18,30 @@ package com.example.android.sunshine.sync;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
+import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.text.format.DateUtils;
+import android.util.Log;
 
+import com.example.android.sunshine.R;
 import com.example.android.sunshine.data.SunshinePreferences;
 import com.example.android.sunshine.data.WeatherContract;
 import com.example.android.sunshine.utilities.NetworkUtils;
 import com.example.android.sunshine.utilities.NotificationUtils;
 import com.example.android.sunshine.utilities.OpenWeatherJsonUtils;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.PendingResult;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.wearable.DataApi;
+import com.google.android.gms.wearable.PutDataMapRequest;
+import com.google.android.gms.wearable.PutDataRequest;
+import com.google.android.gms.wearable.Wearable;
 
 import java.net.URL;
 
-public class SunshineSyncTask {
+public class SunshineSyncTask implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener{
 
     /**
      * Performs the network request for updated weather, parses the JSON from that request, and
@@ -112,5 +125,49 @@ public class SunshineSyncTask {
             /* Server probably invalid */
             e.printStackTrace();
         }
+
+        // Sync new weather data to Android Wear
+        sendWearWeatherData(context);
+
+    }
+
+    private static void sendWearWeatherData(Context context){
+        final String LOG_TAG = "SunshineWearSync";
+
+        GoogleApiClient mGoogleApiClient;
+        mGoogleApiClient = new GoogleApiClient.Builder(context)
+                .addApi(Wearable.API)
+                .build();
+        mGoogleApiClient.connect();
+
+        double random = Math.floor(Math.random()*10);
+        Log.d(LOG_TAG, "Sending the number " + random + " to Android Wear.");
+        PutDataMapRequest putDataMapReq = PutDataMapRequest.create(context.getString(R.string.PATH_WEAR_DATA));
+        putDataMapReq.getDataMap().putDouble(context.getString(R.string.DATAMAP_TEMP_HIGH), random);
+        putDataMapReq.setUrgent();
+        PutDataRequest putDataReq = putDataMapReq.asPutDataRequest();
+        PendingResult<DataApi.DataItemResult> pendingResult =
+                Wearable.DataApi.putDataItem(mGoogleApiClient, putDataReq);
+        pendingResult.setResultCallback(new ResultCallback<DataApi.DataItemResult>() {
+            @Override
+            public void onResult(@NonNull DataApi.DataItemResult dataItemResult) {
+                Log.d(LOG_TAG, "Result is " + dataItemResult.getStatus() + ".");
+            }
+        });
+    }
+
+    @Override
+    public void onConnected(@Nullable Bundle bundle) {
+
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+
     }
 }
