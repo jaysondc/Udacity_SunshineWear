@@ -18,9 +18,12 @@ package com.example.android.sunshine.sync;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.content.CursorLoader;
 import android.text.format.DateUtils;
 import android.util.Log;
 
@@ -41,7 +44,9 @@ import com.google.android.gms.wearable.Wearable;
 
 import java.net.URL;
 
-public class SunshineSyncTask implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener{
+import static com.example.android.sunshine.MainActivity.MAIN_FORECAST_PROJECTION;
+
+public class SunshineSyncTask implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
     /**
      * Performs the network request for updated weather, parses the JSON from that request, and
@@ -131,8 +136,68 @@ public class SunshineSyncTask implements GoogleApiClient.ConnectionCallbacks, Go
 
     }
 
-    private static void sendWearWeatherData(Context context){
+    private static void sendWearWeatherData(Context context) {
         final String LOG_TAG = "SunshineWearSync";
+
+        /*
+        * The columns of data that we are interested in displaying within our DetailActivity's
+        * weather display.
+        */
+        final String[] WEATHER_DETAIL_PROJECTION = {
+                WeatherContract.WeatherEntry.COLUMN_DATE,
+                WeatherContract.WeatherEntry.COLUMN_MAX_TEMP,
+                WeatherContract.WeatherEntry.COLUMN_MIN_TEMP,
+                WeatherContract.WeatherEntry.COLUMN_HUMIDITY,
+                WeatherContract.WeatherEntry.COLUMN_PRESSURE,
+                WeatherContract.WeatherEntry.COLUMN_WIND_SPEED,
+                WeatherContract.WeatherEntry.COLUMN_DEGREES,
+                WeatherContract.WeatherEntry.COLUMN_WEATHER_ID
+        };
+
+        /*
+        * We store the indices of the values in the array of Strings above to more quickly be able
+        * to access the data from our query. If the order of the Strings above changes, these
+        * indices must be adjusted to match the order of the Strings.
+        */
+        final int INDEX_WEATHER_DATE = 0;
+        final int INDEX_WEATHER_MAX_TEMP = 1;
+        final int INDEX_WEATHER_MIN_TEMP = 2;
+        final int INDEX_WEATHER_HUMIDITY = 3;
+        final int INDEX_WEATHER_PRESSURE = 4;
+        final int INDEX_WEATHER_WIND_SPEED = 5;
+        final int INDEX_WEATHER_DEGREES = 6;
+        final int INDEX_WEATHER_CONDITION_ID = 7;
+
+        /*
+         * Query weather data to send
+         */
+        ContentResolver sunshineContentResolver = context.getContentResolver();
+
+        /*
+         * A SELECTION in SQL declares which rows you'd like to return. In our case, we
+         * want all weather data from today onwards that is stored in our weather table.
+         * We created a handy method to do that in our WeatherEntry class.
+         */
+        String selection = WeatherContract.WeatherEntry.getSqlSelectForToday();
+
+        /* Sort order: Ascending by date */
+        String sortOrder = WeatherContract.WeatherEntry.COLUMN_DATE + " ASC";
+
+        Cursor myCursor = sunshineContentResolver.query(
+                WeatherContract.WeatherEntry.CONTENT_URI,
+                WEATHER_DETAIL_PROJECTION,
+                selection,
+                null,
+                null
+        );
+
+        if (myCursor != null){
+            myCursor.moveToFirst();
+            Long highTemp = myCursor.getLong(INDEX_WEATHER_MAX_TEMP);
+            Long lowTemp = myCursor.getLong(INDEX_WEATHER_MIN_TEMP);
+
+            Log.d(LOG_TAG, "Pulled cursor high temp " + highTemp + " low " + lowTemp);
+        }
 
         GoogleApiClient mGoogleApiClient;
         mGoogleApiClient = new GoogleApiClient.Builder(context)
@@ -140,7 +205,7 @@ public class SunshineSyncTask implements GoogleApiClient.ConnectionCallbacks, Go
                 .build();
         mGoogleApiClient.connect();
 
-        double random = Math.floor(Math.random()*10);
+        double random = Math.floor(Math.random() * 10);
         Log.d(LOG_TAG, "Sending the number " + random + " to Android Wear.");
         PutDataMapRequest putDataMapReq = PutDataMapRequest.create(context.getString(R.string.PATH_WEAR_DATA));
         putDataMapReq.getDataMap().putDouble(context.getString(R.string.DATAMAP_TEMP_HIGH), random);
