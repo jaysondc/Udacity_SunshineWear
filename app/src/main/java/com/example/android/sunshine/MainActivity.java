@@ -335,6 +335,10 @@ public class MainActivity extends AppCompatActivity implements
 
         int id = item.getItemId();
 
+        if (id == R.id.action_refresh) {
+            SunshineSyncUtils.startImmediateSync(this);
+        }
+
         if (id == R.id.action_settings) {
             startActivity(new Intent(this, SettingsActivity.class));
             return true;
