@@ -33,6 +33,7 @@ import com.example.android.sunshine.data.WeatherContract;
 import com.example.android.sunshine.utilities.NetworkUtils;
 import com.example.android.sunshine.utilities.NotificationUtils;
 import com.example.android.sunshine.utilities.OpenWeatherJsonUtils;
+import com.example.android.sunshine.utilities.SunshineWeatherUtils;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
@@ -180,9 +181,7 @@ public class SunshineSyncTask implements GoogleApiClient.ConnectionCallbacks, Go
          */
         String selection = WeatherContract.WeatherEntry.getSqlSelectForToday();
 
-        /* Sort order: Ascending by date */
-        String sortOrder = WeatherContract.WeatherEntry.COLUMN_DATE + " ASC";
-
+        // Get cursor
         Cursor myCursor = sunshineContentResolver.query(
                 WeatherContract.WeatherEntry.CONTENT_URI,
                 WEATHER_DETAIL_PROJECTION,
@@ -191,14 +190,26 @@ public class SunshineSyncTask implements GoogleApiClient.ConnectionCallbacks, Go
                 null
         );
 
-        if (myCursor != null){
-            myCursor.moveToFirst();
-            Long highTemp = myCursor.getLong(INDEX_WEATHER_MAX_TEMP);
-            Long lowTemp = myCursor.getLong(INDEX_WEATHER_MIN_TEMP);
-
-            Log.d(LOG_TAG, "Pulled cursor high temp " + highTemp + " low " + lowTemp);
+        // Check if cursor contains data
+        if (myCursor == null){
+            Log.d(LOG_TAG, "Error: No weather data found.");
+            return;
         }
 
+        // Format data
+        myCursor.moveToFirst();
+        Long highInCelsius = myCursor.getLong(INDEX_WEATHER_MAX_TEMP);
+        Long lowInCelsius = myCursor.getLong(INDEX_WEATHER_MIN_TEMP);
+        int weatherCondition = myCursor.getInt(INDEX_WEATHER_CONDITION_ID);
+
+        Log.d(LOG_TAG, "Pulled cursor high temp " + highInCelsius + " low " + lowInCelsius);
+
+        String highString = SunshineWeatherUtils.formatTemperature(context, highInCelsius);
+        String lowString = SunshineWeatherUtils.formatTemperature(context, lowInCelsius);
+
+        Log.d(LOG_TAG, "Weather condition is " + weatherCondition + ".");
+
+        // Send data to Wear Data Layer
         GoogleApiClient mGoogleApiClient;
         mGoogleApiClient = new GoogleApiClient.Builder(context)
                 .addApi(Wearable.API)
@@ -208,17 +219,37 @@ public class SunshineSyncTask implements GoogleApiClient.ConnectionCallbacks, Go
         double random = Math.floor(Math.random() * 10);
         Log.d(LOG_TAG, "Sending the number " + random + " to Android Wear.");
         PutDataMapRequest putDataMapReq = PutDataMapRequest.create(context.getString(R.string.PATH_WEAR_DATA));
-        putDataMapReq.getDataMap().putDouble(context.getString(R.string.DATAMAP_TEMP_HIGH), random);
+
+        putDataMapReq.getDataMap().putString(context.getString(
+                R.string.DATAMAP_TEMP_HIGH),
+                highString);
+        putDataMapReq.getDataMap().putString(context.getString(
+                R.string.DATAMAP_TEMP_LOW),
+                lowString);
+        putDataMapReq.getDataMap().putInt(context.getString(
+                R.string.DATAMAP_WEATHER_CONDITION),
+                weatherCondition);
+        // Sending current time so a change is detected every time for debug
+        putDataMapReq.getDataMap().putLong(context.getString(
+                R.string.DATAMAP_LAST_UPDATED),
+                System.currentTimeMillis());
+
         putDataMapReq.setUrgent();
         PutDataRequest putDataReq = putDataMapReq.asPutDataRequest();
+
+        // Send DataItem to Android Wear Buffer to be synced when possible
         PendingResult<DataApi.DataItemResult> pendingResult =
                 Wearable.DataApi.putDataItem(mGoogleApiClient, putDataReq);
+
         pendingResult.setResultCallback(new ResultCallback<DataApi.DataItemResult>() {
             @Override
             public void onResult(@NonNull DataApi.DataItemResult dataItemResult) {
                 Log.d(LOG_TAG, "Result is " + dataItemResult.getStatus() + ".");
             }
         });
+
+        // cleanup
+        myCursor.close();
     }
 
     @Override

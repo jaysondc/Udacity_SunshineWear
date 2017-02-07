@@ -5,7 +5,8 @@
     <string name="PATH_WEAR_DATA">/sunshine/wear/data</string>
     <string name="DATAMAP_TEMP_HIGH">datamap_temp_high</string>
     <string name="DATAMAP_TEMP_LOW">datamap_temp_low</string>
-    <string name="DATAMAP_CONDITION">datamap_condition</string>
+    <string name="DATAMAP_WEATHER_CONDITION">datamap_condition</string>
+    <string name="DATAMAP_LAST_UPDATED">datamap_last_updated</string>
 
 
     <!-- - - - - - - - - - - - - - - - -
