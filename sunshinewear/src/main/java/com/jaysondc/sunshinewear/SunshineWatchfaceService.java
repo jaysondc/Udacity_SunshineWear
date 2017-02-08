@@ -48,10 +48,12 @@ import android.widget.TextView;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.wearable.DataApi;
 import com.google.android.gms.wearable.DataEvent;
 import com.google.android.gms.wearable.DataEventBuffer;
 import com.google.android.gms.wearable.DataItem;
+import com.google.android.gms.wearable.DataItemBuffer;
 import com.google.android.gms.wearable.DataMap;
 import com.google.android.gms.wearable.DataMapItem;
 import com.google.android.gms.wearable.Wearable;
@@ -107,11 +109,15 @@ public class SunshineWatchfaceService extends CanvasWatchFaceService implements
                 // DataItem deleted
             }
         }
+
+        // Cleanup
+        dataEventBuffer.release();
     }
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
         Log.d(LOG_TAG, "Wearable API is connected. Now listening.");
+        readWeather();
         Wearable.DataApi.addListener(mGoogleApiClient, this);
     }
 
@@ -138,9 +144,42 @@ public class SunshineWatchfaceService extends CanvasWatchFaceService implements
 
         mGoogleApiClient.connect();
 
+        readWeather();
+
         Log.d(LOG_TAG, "Watchface created.");
         mWatchEngine = new Engine();
         return mWatchEngine;
+    }
+
+    private void readWeather(){
+        /**
+         * Get latest weather data from Data Layer. This data should always be less than 24hrs
+         * old because it's sent using the Sunshine SynAdapter.
+         */
+
+        Wearable.DataApi.getDataItems(mGoogleApiClient)
+                .setResultCallback(new ResultCallback<DataItemBuffer>() {
+                    @Override
+                    public void onResult(@NonNull DataItemBuffer dataItems) {
+                        // Read all current DataItems
+                        Log.d(LOG_TAG, "Data buffer received with " + dataItems.getCount() + " items.");
+                        for (DataItem item : dataItems) {
+                            if (item.getUri().getPath().compareTo(getString(R.string.PATH_WEAR_DATA)) == 0) {
+                                DataMap dataMap = DataMapItem.fromDataItem(item).getDataMap();
+                                Log.d(LOG_TAG, "Received latest weather data from Sunshine.");
+
+                                // Update watchface with updated weather data
+                                mWatchEngine.updateWeather(
+                                        dataMap.getString(getString(R.string.DATAMAP_TEMP_HIGH)),
+                                        dataMap.getString(getString(R.string.DATAMAP_TEMP_LOW)),
+                                        dataMap.getInt(getString(R.string.DATAMAP_WEATHER_CONDITION)));
+                            }
+                        }
+
+                        // Cleanup
+                        dataItems.release();
+                    }
+                });
     }
 
     private class Engine extends CanvasWatchFaceService.Engine {
