@@ -224,7 +224,7 @@ public class SunshineWatchfaceService extends CanvasWatchFaceService implements
 
         private int specW, specH;
         private View myLayout;
-        private TextView day, date, month, year, hour, minute, high, low;
+        private TextView day, date, month, year, hour, colon, minute, high, low;
         private ImageView weatherIcon;
         private final Point displaySize = new Point();
 
@@ -262,6 +262,7 @@ public class SunshineWatchfaceService extends CanvasWatchFaceService implements
             month = (TextView) myLayout.findViewById(R.id.month);
             year = (TextView) myLayout.findViewById(R.id.year);
             hour = (TextView) myLayout.findViewById(R.id.hour);
+            colon = (TextView) myLayout.findViewById(R.id.colon);
             minute = (TextView) myLayout.findViewById(R.id.minute);
 
             // Weather views
@@ -347,20 +348,41 @@ public class SunshineWatchfaceService extends CanvasWatchFaceService implements
         @Override
         public void onAmbientModeChanged(boolean inAmbientMode) {
             super.onAmbientModeChanged(inAmbientMode);
-            if (mAmbient != inAmbientMode) {
-                mAmbient = inAmbientMode;
 
-                // Switch between bold & normal font
-                Typeface font = Typeface.create("sans-serif-condensed",
-                        inAmbientMode ? Typeface.NORMAL : Typeface.BOLD);
-                ViewGroup group = (ViewGroup) myLayout;
-                for (int i = group.getChildCount() - 1; i >= 0; i--) {
-                    // We only get away with this because every child is a TextView
-                    ((TextView) group.getChildAt(i)).setTypeface(font);
-                }
+            mAmbient = inAmbientMode;
 
-                invalidate();
+            // Change these variables based on whether or not we're in amient mode
+            Typeface font;
+            int visibility;
+            boolean antiAlias;
+
+            if(inAmbientMode){
+                font = Typeface.create("san-serif-condensed", Typeface.NORMAL);
+                visibility = View.GONE;
+                antiAlias = false;
+            } else {
+                font = Typeface.create("san-serif-condensed", Typeface.BOLD);
+                visibility = View.VISIBLE;
+                antiAlias = true;
             }
+
+            hour.setTypeface(font);
+            colon.setTypeface(font);
+            high.setTypeface(font);
+
+            hour.getPaint().setAntiAlias(antiAlias);
+            colon.getPaint().setAntiAlias(antiAlias);
+            minute.getPaint().setAntiAlias(antiAlias);
+            day.getPaint().setAntiAlias(antiAlias);
+            date.getPaint().setAntiAlias(antiAlias);
+            month.getPaint().setAntiAlias(antiAlias);
+            year.getPaint().setAntiAlias(antiAlias);
+            high.getPaint().setAntiAlias(antiAlias);
+            low.getPaint().setAntiAlias(antiAlias);
+
+            weatherIcon.setVisibility(visibility);
+
+            invalidate();
 
             // Whether the timer should be running depends on whether we're visible (as well as
             // whether we're in ambient mode), so we may need to start or stop the timer.
@@ -387,7 +409,11 @@ public class SunshineWatchfaceService extends CanvasWatchFaceService implements
             myLayout.layout(0, 0, myLayout.getMeasuredWidth(), myLayout.getMeasuredHeight());
 
             // Draw it to the Canvas
-            canvas.drawColor(getColor(R.color.colorPrimary));
+            if(mAmbient){
+                canvas.drawColor(getColor(R.color.black));
+            } else {
+                canvas.drawColor(getColor(R.color.colorPrimary));
+            }
             canvas.translate(mXOffset, mYOffset);
             myLayout.draw(canvas);
         }
