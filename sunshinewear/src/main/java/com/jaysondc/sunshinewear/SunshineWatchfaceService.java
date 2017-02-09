@@ -254,7 +254,7 @@ public class SunshineWatchfaceService extends CanvasWatchFaceService implements
             // Load the display spec - we'll need this later for measuring myLayout
             Display display = ((WindowManager) getSystemService(Context.WINDOW_SERVICE))
                     .getDefaultDisplay();
-            display.getSize(displaySize);
+            display.getRealSize(displaySize);
 
             // Find some views for later use
             day = (TextView) myLayout.findViewById(R.id.day);
@@ -319,14 +319,7 @@ public class SunshineWatchfaceService extends CanvasWatchFaceService implements
         public void onApplyWindowInsets(WindowInsets insets) {
             super.onApplyWindowInsets(insets);
 
-            if (insets.isRound()) {
-                // Shrink the face to fit on a round screen
-                mYOffset = mXOffset = displaySize.x * 0.1f;
-                displaySize.y -= 2 * mXOffset;
-                displaySize.x -= 2 * mXOffset;
-            } else {
-                mXOffset = mYOffset = 0;
-            }
+            mXOffset = mYOffset = 0;
 
             // Recompute the MeasureSpec fields - these determine the actual size of the layout
             specW = View.MeasureSpec.makeMeasureSpec(displaySize.x, View.MeasureSpec.EXACTLY);
@@ -358,7 +351,7 @@ public class SunshineWatchfaceService extends CanvasWatchFaceService implements
 
             if(inAmbientMode){
                 font = Typeface.create("san-serif-condensed", Typeface.NORMAL);
-                visibility = View.GONE;
+                visibility = View.INVISIBLE;
                 antiAlias = false;
             } else {
                 font = Typeface.create("san-serif-condensed", Typeface.BOLD);
@@ -403,6 +396,13 @@ public class SunshineWatchfaceService extends CanvasWatchFaceService implements
             // Apply it to the time fields
             hour.setText(String.format(Locale.getDefault(), "%02d", mTime.hour));
             minute.setText(String.format(Locale.getDefault(), "%02d", mTime.minute));
+
+            // Make colon blink every second
+            if(mTime.second%2 == 1 && !mAmbient){
+                colon.setVisibility(View.INVISIBLE);
+            } else {
+                colon.setVisibility(View.VISIBLE);
+            }
 
             // Update the layout
             myLayout.measure(specW, specH);

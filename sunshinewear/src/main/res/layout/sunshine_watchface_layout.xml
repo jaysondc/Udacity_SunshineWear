@@ -1,16 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="8dp">
+    android:orientation="vertical"
+    android:gravity="center">
 
     <LinearLayout
         android:id="@+id/time_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/date_layout"
-        android:layout_centerHorizontal="true"
         android:orientation="horizontal">
 
         <TextView
@@ -49,8 +48,6 @@
         android:id="@+id/date_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/watchface_divider"
-        android:layout_centerHorizontal="true"
         android:orientation="horizontal">
 
         <TextView
@@ -93,13 +90,17 @@
 
     </LinearLayout>
 
+    <FrameLayout
+        android:id="@+id/watchface_divider"
+        android:layout_width="50dp"
+        android:layout_height="1dp"
+        android:background="#fff" />
+
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/watchface_divider"
         android:orientation="horizontal"
-        android:layout_centerHorizontal="true"
-        android:gravity="center_vertical">
+        android:gravity="center">
 
         <ImageView
             android:id="@+id/weather_icon"
@@ -110,7 +111,7 @@
         <TextView
             android:id="@+id/temp_high"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_marginTop="4dp"
             android:textColor="#fff"
             android:textSize="25sp"
@@ -120,7 +121,7 @@
         <TextView
             android:id="@+id/temp_low"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_marginTop="4dp"
             android:textColor="#fff"
             android:textSize="25sp"
@@ -129,12 +130,4 @@
 
     </LinearLayout>
 
-    <FrameLayout
-        android:id="@+id/watchface_divider"
-        android:layout_width="50dp"
-        android:layout_height="1dp"
-        android:background="#fff"
-        android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true"/>
-
-</RelativeLayout>
+</LinearLayout>
